@@ -1,0 +1,60 @@
+import gps
+import time
+from ISStreamer.Streamer import Streamer
+from geopy.geocoders import Nominatim
+from geopy.exc import GeocoderTimedOut
+import sys, traceback
+from sys import exit
+
+geolocator = Nominatim()
+session = gps.gps("127.0.0.1", "2947")
+session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
+publish_data = Streamer(bucket_name="ISDP Final Demo", bucket_key="B8JJFVMG7RB4", access_key="ist_M3rpcmJlyDXpJQh1z-FhmsCbin5bRBOK") 
+
+time_1=None
+i =0; j =0
+lat = []; lon= []
+
+while True:
+	try:
+
+    		raw_data = session.next()
+		                raw_data = session.next()
+
+		if raw_data['class'] == 'TPV':
+			if hasattr(raw_data,'lat') and hasattr(raw_data,'lon'):
+				publish_data.log("Location", "{lat},{lon}".format(lat=raw_data.lat,lon=raw_data.lon))
+        		        print "Latitude is = "+str(raw_data.lat)+",    Longitude is = "+str(raw_data.lon)
+				coordinates = str(raw_data.lat) + "," + str(raw_data.lon)
+				location = geolocator.reverse(coordinates,timeout=1)
+				publish_data.log("Object is located at",location.address)
+				print "Location: ", (location.address)
+#		if raw_data['class'] =='TPV':
+#			if hasattr(raw_data,'speed'):
+#				speed_mps= format((raw_data.speed/3.6), ".2f")
+#				publish_data.log("Speed of the object", speed_mps)
+#				print "Object speed  =", speed_mps," mps"
+#		if raw_data['class'] =='TPV':
+#			if hasattr(raw_data,'alt'):
+#				publish_data.log("Altitude",raw_data.alt)
+#				print "The altitude is = "+str(raw_data.alt)+" m"
+		if raw_data['class'] == 'TPV':
+			if hasattr(raw_data,'time'):
+				publish_data.log("Time",raw_data.time)
+				print "The curent date and time is = "+str(raw_data.time)+"\n"			
+		
+	except GeocoderTimedOut as e:
+		pass
+	except KeyError:
+		pass
+	except (KeyboardInterrupt, SystemExit):
+		publish_data.close()
+		print "\nEnding the current process"
+		gps.running = False
+		exit()
+		quit()
+	except StopIteration:
+		session = None
+		print "No incoming data from the GPS module"
+
+		
