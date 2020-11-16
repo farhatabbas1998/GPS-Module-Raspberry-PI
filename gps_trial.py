@@ -8,9 +8,9 @@ from sys import exit
 
 
 geolocator = Nominatim()
-session = gps.gps("127.0.0.1", "2947")
-session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE)
-publish_data = Streamer(bucket_name="GPS KSA", bucket_key="4GAXRFTVSCRX", access_key="ist_-fO177NPqe3zGv2KprvMZ7N-hb-zFkK4") 
+session = gps.gps("127.0.0.1", "2947") # standard gps function (local host ip address,default code)  
+session.stream(gps.WATCH_ENABLE | gps.WATCH_NEWSTYLE) /# incoming data
+publish_data = Streamer(bucket_name="GPS KSA", bucket_key="4GAXRFTVSCRX", access_key="ist_-fO177NPqe3zGv2KprvMZ7N-hb-zFkK4") #https://www.initialstate.com/ iot website
 
 
 time_1=None
@@ -45,7 +45,7 @@ while True:
 								lat[0] = lat[1];  lon[0] = lon[1]
 								lat[1] = lat[2];  lon[1] = lon[2]
 								lat[2] = raw_data.lat; lon[2] = raw_data.lon
-								ave_lat = (lat[0] + lat[1] + lat[2])/3
+								ave_lat = (lat[0] + lat[1] + lat[2])/3 # finding average lat, lon for better accuracy
 								ave_lon = (lon[0] + lon[1] + lon[3])/3
 								publish_data.log("Location", "{lat},{lon}".format(lat=ave_lat,lon=ave_lon))
 								print "Latitude  =  ", ave_lat,",    Longitude   =  ",ave_lon
